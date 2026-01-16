@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import Payment from "./Payment";
 import { useAuth } from "../lib/AuthContext";
 import Auth from "./Auth";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const RATE_PER_MINUTE = 200; // cents
 
@@ -22,6 +23,26 @@ export default function Chat() {
   const [showAccount, setShowAccount] = useState(false);
 
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const searchParams = new URLSearchParams(location.search);
+  const success = searchParams.get("success");
+
+  useEffect(() => {
+    if (success === "true") {
+      (async () => {
+        // refresh wallet after Stripe
+        await loadWallet();
+
+        // open chat UI
+        setOpen(true);
+
+        // clean URL so refresh doesn't retrigger
+        navigate("/chat", { replace: true });
+      })();
+    }
+  }, [success]);
 
   /* -------------------- LOAD WALLET -------------------- */
   useEffect(() => {
@@ -221,17 +242,6 @@ export default function Chat() {
     return () => supabase.removeChannel(channel);
   }, []);
 
-  /* -------------------- BILLING LOOP -------------------- */
-  // useEffect(() => {
-  //   if (status !== "active" || !sessionId) return;
-
-  //   const interval = setInterval(() => {
-  //     supabase.rpc("bill_active_session", { sid: sessionId });
-  //   }, 30_000);
-
-  //   return () => clearInterval(interval);
-  // }, [status, sessionId]);
-
   /* -------------------- TIMER -------------------- */
   useEffect(() => {
     if (!startedAt || status !== "active") return;
@@ -244,14 +254,6 @@ export default function Chat() {
     const i = setInterval(tick, 1000);
     return () => clearInterval(i);
   }, [startedAt, status]);
-
-  /* -------------------- AUTO END IF OUT OF FUNDS -------------------- */
-  // useEffect(() => {
-  //   if (balance <= 0 && status === "active") {
-  //     endChat();
-  //     setShowPayment(true);
-  //   }
-  // }, [balance, status]);
 
   /* -------------------- END CHAT -------------------- */
   async function endChat() {
