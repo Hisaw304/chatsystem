@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@import "tailwindcss";
+
+@layer theme, base, components, utilities;
+
+/* =========================
+   THEME VARIABLES
+   ========================= */
+@layer theme {
+  :root {
+    --chat-primary: #4f46e5;
+    --chat-bg: #020617;
+    --chat-text: #ffffff;
+    --chat-muted: #94a3b8;
+    --chat-border: #1e293b;
+    --chat-online: #22c55e;
+    --chat-admin-msg: #1e293b;
+  }
+}
+
+/* =========================
+   BASE STYLES
+   ========================= */
+@layer base {
+  * {
+    font-family: "Outfit", sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
