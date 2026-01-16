@@ -10,10 +10,13 @@ const App = () => {
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
         <Routes>
-          {/* Protected user route */}
+          {/* Home (chat lives here) */}
           <Route path="/" element={<Home />} />
 
-          {/* Protected admin route */}
+          {/* ✅ ADD THIS */}
+          <Route path="/chat" element={<Home />} />
+
+          {/* Admin */}
           <Route
             path="/admin"
             element={
