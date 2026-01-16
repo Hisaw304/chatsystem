@@ -19,6 +19,7 @@ export default function Chat() {
   const [adminOnline, setAdminOnline] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
 
   const { user } = useAuth();
 
@@ -314,14 +315,42 @@ export default function Chat() {
   /* -------------------- RENDER -------------------- */
   return (
     <>
-      {/* AUTH MODAL */}
+      {/* ================= ACCOUNT MENU ================= */}
+      {user && (
+        <div className="fixed top-4 right-4 z-[1000]">
+          <button
+            onClick={() => setShowAccount((v) => !v)}
+            className="px-3 py-2 rounded-lg bg-black/80 text-white text-sm"
+          >
+            Account ▾
+          </button>
+
+          {showAccount && (
+            <div className="mt-2 bg-white rounded-lg shadow-lg overflow-hidden text-sm">
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  setOpen(false);
+                  setStatus("idle");
+                  setShowAccount(false);
+                }}
+                className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ================= AUTH MODAL ================= */}
       {showAuth && (
         <div className="fixed inset-0 z-[999] bg-black/40 flex items-center justify-center">
           <Auth onSuccess={() => setShowAuth(false)} />
         </div>
       )}
 
-      {/* PAYMENT MODAL — ALWAYS AVAILABLE */}
+      {/* ================= PAYMENT MODAL ================= */}
       {showPayment && (
         <div className="fixed inset-0 z-[999] bg-black/40 flex items-center justify-center">
           <Payment
@@ -329,13 +358,12 @@ export default function Chat() {
             onSuccess={async () => {
               setShowPayment(false);
               await loadWallet();
-              startChat();
             }}
           />
         </div>
       )}
 
-      {/* FLOATING CHAT BUTTON */}
+      {/* ================= FLOATING CHAT BUTTON ================= */}
       {!open && (
         <button
           onClick={handleOpenChat}
@@ -361,7 +389,7 @@ export default function Chat() {
         </button>
       )}
 
-      {/* ACTIVE CHAT WINDOW */}
+      {/* ================= ACTIVE CHAT WINDOW ================= */}
       {open && status === "active" && (
         <div
           className="
@@ -382,7 +410,14 @@ export default function Chat() {
               </p>
             </div>
 
-            <button onClick={handleCloseChat}>✕</button>
+            <button
+              onClick={() => {
+                setOpen(false);
+                setStatus("idle");
+              }}
+            >
+              ✕
+            </button>
           </header>
 
           {/* MESSAGES */}
@@ -419,13 +454,21 @@ export default function Chat() {
                 placeholder={
                   adminOnline ? "Type a message..." : "Admin offline"
                 }
-                className="flex-1 px-3 py-2 rounded-md bg-transparent border border-[var(--chat-border)] text-sm outline-none"
+                className="
+                flex-1 px-3 py-2 rounded-md
+                bg-transparent border border-[var(--chat-border)]
+                text-sm outline-none
+              "
               />
 
               <button
                 onClick={sendMessage}
                 disabled={!input.trim() || !adminOnline}
-                className="px-4 rounded-md bg-[var(--chat-primary)] text-white disabled:opacity-50"
+                className="
+                px-4 rounded-md
+                bg-[var(--chat-primary)]
+                text-white disabled:opacity-50
+              "
               >
                 Send
               </button>
@@ -434,11 +477,23 @@ export default function Chat() {
         </div>
       )}
 
-      {/* START CHAT CTA */}
+      {/* ================= START CHAT CTA ================= */}
       {open && status !== "active" && (
         <div className="fixed bottom-5 right-5 z-50">
           <button
-            onClick={startChat}
+            onClick={() => {
+              if (!user) {
+                setShowAuth(true);
+                return;
+              }
+
+              if (balance <= 0) {
+                setShowPayment(true);
+                return;
+              }
+
+              setStatus("active");
+            }}
             className="
             w-[90vw] max-w-sm py-3 rounded-xl
             bg-[var(--chat-primary)]
