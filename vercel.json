@@ -8,11 +8,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/bill",
-      "schedule": "*/1 * * * *"
-    }
   ]
 }

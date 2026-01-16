@@ -173,6 +173,12 @@ export default function Chat() {
     if (!input.trim() || !sessionId || status !== "active" || !adminOnline)
       return;
 
+    // 🔥 BILL FIRST
+    await supabase.rpc("bill_active_session", {
+      p_session_id: sessionId,
+    });
+
+    // THEN send message
     await supabase.rpc("send_message", {
       session_uuid: sessionId,
       role: "user",
@@ -239,12 +245,12 @@ export default function Chat() {
   }, [startedAt, status]);
 
   /* -------------------- AUTO END IF OUT OF FUNDS -------------------- */
-  useEffect(() => {
-    if (balance <= 0 && status === "active") {
-      endChat();
-      setShowPayment(true);
-    }
-  }, [balance, status]);
+  // useEffect(() => {
+  //   if (balance <= 0 && status === "active") {
+  //     endChat();
+  //     setShowPayment(true);
+  //   }
+  // }, [balance, status]);
 
   /* -------------------- END CHAT -------------------- */
   async function endChat() {
