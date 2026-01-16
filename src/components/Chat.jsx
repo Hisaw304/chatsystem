@@ -30,19 +30,22 @@ export default function Chat() {
   const success = searchParams.get("success");
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const success = params.get("success");
+
     if (success === "true") {
       (async () => {
-        // refresh wallet after Stripe
+        // 1. reload wallet AFTER Stripe redirect
         await loadWallet();
 
-        // open chat UI
-        setOpen(true);
+        // 2. start chat automatically
+        await startChat();
 
-        // clean URL so refresh doesn't retrigger
-        navigate("/chat", { replace: true });
+        // 3. clean URL so refresh doesn't re-trigger
+        navigate("/", { replace: true });
       })();
     }
-  }, [success]);
+  }, [location.search]);
 
   /* -------------------- LOAD WALLET -------------------- */
   useEffect(() => {
