@@ -31,7 +31,7 @@ export default function AdminDashboard() {
     const { data } = await supabase
       .from("presence")
       .select("is_online")
-      .maybeSingle();
+      .single();
 
     setOnline(data?.is_online ?? false);
   }

@@ -195,20 +195,29 @@ export default function Chat() {
 
   /* -------------------- SEND MESSAGE -------------------- */
   async function sendMessage() {
-    if (!input.trim() || !sessionId || status !== "active" || !adminOnline)
-      return;
+    if (!input.trim() || !sessionId || status !== "active") return;
 
-    // 🔥 BILL FIRST
-    await supabase.rpc("bill_active_session", {
+    const { error: billError } = await supabase.rpc("bill_active_session", {
       p_session_id: sessionId,
     });
 
-    // THEN send message
-    await supabase.rpc("send_message", {
+    if (billError) {
+      console.error("Billing failed", billError);
+      alert(billError.message);
+      return;
+    }
+
+    const { error: msgError } = await supabase.rpc("send_message", {
       session_uuid: sessionId,
       role: "user",
       message: input,
     });
+
+    if (msgError) {
+      console.error("Send failed", msgError);
+      alert(msgError.message);
+      return;
+    }
 
     setInput("");
   }
