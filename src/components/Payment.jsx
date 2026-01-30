@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
 
 export default function Payment({ onClose }) {
   const [amount, setAmount] = useState(10);
